@@ -11,7 +11,7 @@ debug = True
 port = 666
 mongo_port = 27017
 client = MongoClient(port=mongo_port)
-db = client.project
+db = client.test
 
 # region Mongo columns
 mongo_train_cols = {'income': 1, 'maritalStatus': 1, 'gender': 1, 'kids': 1, 'zone': 1, 'birthDate': 1, '_id': 0}
@@ -22,15 +22,15 @@ user_id_col = '_id'
 # region Reading data from the db about the users
 def read_data(user_id):
     # get the properties of the users that are not the current user
-    users_train_data = list(db.user.find({user_id_col: {"$ne": user_id}}, mongo_train_cols))
+    users_train_data = list(db.users.find({user_id_col: {"$ne": user_id}}, mongo_train_cols))
 
     # get the expenses
     users_outcome_pipeline = [{"$unwind": "$transactions"},
                               {"$group": {user_id_col: "$_id", "totalPrice": {"$sum": "$transactions.price"}}}]
-    users_outcome_dictionary = list(db.user.aggregate(users_outcome_pipeline))
+    users_outcome_dictionary = list(db.users.aggregate(users_outcome_pipeline))
     train_res_data = [user['totalPrice'] for user in users_outcome_dictionary if user[user_id_col] != user_id]
 
-    logged_user_data = list(db.user.find({user_id_col: user_id}, mongo_train_cols))
+    logged_user_data = list(db.users.find({user_id_col: user_id}, mongo_train_cols))
 
     return users_train_data, train_res_data, logged_user_data
 # endregion
