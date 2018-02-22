@@ -25,10 +25,24 @@ def read_data(user_id):
     users_train_data = list(db.users.find({user_id_col: {"$ne": user_id}}, mongo_train_cols))
 
     # get the expenses
-    users_outcome_pipeline = [{"$unwind": "$transactions"},
-                              {"$group": {user_id_col: "$_id", "totalPrice": {"$sum": "$transactions.price"}}}]
-    users_outcome_dictionary = list(db.users.aggregate(users_outcome_pipeline))
-    train_res_data = [user['totalPrice'] for user in users_outcome_dictionary if user[user_id_col] != user_id]
+    users_outcome_pipeline = [{
+                                  "$project": {
+                                      "transactions": {
+                                          "$cond": {
+                                              "if": {"$eq": [{"$size": "$transactions"}, 0]},
+                                              "then": 0,
+                                              "else": {"$sum": "$transactions.price"}
+                                          }
+                                      },
+                                      "_id": "$_id"
+                                  }
+                              },
+                              {
+                                  "$unwind": "$transactions"
+                              }
+                              ]
+    users_outcome_dictionary = list(db.user.aggregate(users_outcome_pipeline))
+    train_res_data = [user['transactions'] for user in users_outcome_dictionary if user[user_id_col] != user_id]
 
     logged_user_data = list(db.users.find({user_id_col: user_id}, mongo_train_cols))
 
