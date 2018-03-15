@@ -388,8 +388,12 @@
         var expensesUrl = "http://localhost:666/user/" + $scope.currentUserId;
 
         $scope.getExpectedExpenses = function () {
-            $http.get(expensesUrl).then(function(response){
+            $http.get(expensesUrl
+            ).then(function(response){
                 $scope.expectedExpense = response.data;
+            }).catch(function (error) {
+                console.log('error on expected expenses:');
+                console.log(error)
             });
         }
     })
