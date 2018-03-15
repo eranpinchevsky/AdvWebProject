@@ -117,4 +117,4 @@ def after_request(response):
 
 
 if __name__ == '__main__':
-    app.run(debug=debug, port=port)
+    app.run(debug=debug, port=port, host='0.0.0.0')
