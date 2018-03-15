@@ -16,13 +16,14 @@ db = client.test
 # region Mongo columns
 mongo_train_cols = {'income': 1, 'maritalStatus': 1, 'gender': 1, 'kids': 1, 'zone': 1, 'birthDate': 1, '_id': 0}
 user_id_col = '_id'
+users_collection = db.users
 # endregion
 
 
 # region Reading data from the db about the users
 def read_data(user_id):
     # get the properties of the users that are not the current user
-    users_train_data = list(db.users.find({user_id_col: {"$ne": user_id}}, mongo_train_cols))
+    users_train_data = list(users_collection.find({user_id_col: {"$ne": user_id}}, mongo_train_cols))
 
     # get the expenses
     users_outcome_pipeline = [{
@@ -41,10 +42,10 @@ def read_data(user_id):
                                   "$unwind": "$transactions"
                               }
                               ]
-    users_outcome_dictionary = list(db.users.aggregate(users_outcome_pipeline))
+    users_outcome_dictionary = list(users_collection.aggregate(users_outcome_pipeline))
     train_res_data = [user['transactions'] for user in users_outcome_dictionary if user[user_id_col] != user_id]
 
-    logged_user_data = list(db.users.find({user_id_col: user_id}, mongo_train_cols))
+    logged_user_data = list(users_collection.find({user_id_col: user_id}, mongo_train_cols))
 
     return users_train_data, train_res_data, logged_user_data
 # endregion
