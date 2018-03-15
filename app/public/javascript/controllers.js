@@ -218,7 +218,7 @@
 
                     // Scale the range of the data in the domains
                     x.domain(data.map(function (d) {
-                        return d._id.month + "/" + d._id.year + " " + d._id.catagory;
+                        return d._id.month + "/" + d._id.year + " " + d._id.category;
                     }));
                     y.domain([0, d3.max(data, function (d) {
                         return d.totalPrice;
@@ -231,7 +231,7 @@
                         .enter().append("rect")
                         .attr("class", "bar")
                         .attr("x", function (d) {
-                            return x(d._id.month + "/" + d._id.year + " " + d._id.catagory);
+                            return x(d._id.month + "/" + d._id.year + " " + d._id.category);
                         })
                         .attr("width", x.bandwidth())
                         .attr("y", function (d) {
@@ -326,7 +326,7 @@
                             return "translate(" + _d + ")";
                         })
                         .text(function (d) {
-                            return d.data._id.catagory;
+                            return d.data._id.category;
                         });
                 }
             });
@@ -337,7 +337,7 @@
              * ******************/
         }
 
-    }])
+    }]);
 
     myApp.controller("branchCtrl", function($scope,branchService) {
         var self = this;
@@ -351,6 +351,47 @@
             });
         };
 
+    });
+
+    myApp.controller("uploadCtrl", function ($scope, $http) {
+        var uploadUrl = "http://localhost:3000";
+
+        $scope.uploadFile = function () {
+            var file = $scope.myFile;
+            var payload = new FormData();
+            payload.append("title", 'data');
+            payload.append('file', file);
+             // var uploadUrl = "../server/service.php", //Url of webservice/api/server
+             //Take the first selected file
+             $http.post(
+                 uploadUrl,
+                 payload,
+                 {
+                     withCredentials: true,
+                     headers: {'Content-Type': undefined }
+                     // ,transformRequest: angular.identity
+                 }
+             ).then(function (sucess) {
+
+             }).error(function (error) {
+                 console.log('eerrrrrrroooor');
+                 console.log(error)
+             })
+
+
+            }
+    })
+
+
+    myApp.controller("expensesCtrl", function ($scope, $http) {
+
+        var expensesUrl = "http://localhost:666/user/" + $scope.currentUserId;
+
+        $scope.getExpectedExpenses = function () {
+            $http.get(expensesUrl).then(function(response){
+                $scope.expectedExpense = response.data;
+            });
+        }
     })
 
 
