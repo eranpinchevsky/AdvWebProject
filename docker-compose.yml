@@ -37,5 +37,5 @@ services:
     ports:
       - "666:666"
     depends_on:
-      -db
-      -web
+      - db
+      - web
